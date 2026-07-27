@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
         # Conecta o clique do botão ao método
         self.button_input.clicked.connect(self.select_input_file)
 
-        # Adiciona os componentos soltos ao input_layout horizontal
+        # Adiciona os componentes soltos ao input_layout horizontal
         input_layout.addWidget(input_label)
         input_layout.addWidget(self.input_edit)
         input_layout.addWidget(self.button_input)
