@@ -1,4 +1,5 @@
 from pathlib import Path
+from src.image.image_processor import ImageProcessor
 
 # arquivo py coordenador do fluxo de processo
 # Lógica: ler (e conhecer) os caminhos de entrada e saída; se ambos válidos, então inicia a conversão
@@ -15,6 +16,7 @@ class Converter:
         # Atributos são os parâmetros guardados para os métodos utilizarem
         self.input_folder = input_folder
         self.output_folder = output_folder
+        self.image_processor = ImageProcessor() # cria um atributo da classe
 
     # Valida se usuário inseriu as pastas de entrada e de saída
     def validate(self):
@@ -28,14 +30,18 @@ class Converter:
             print("Input folder is invalid")
             return False
 
-           # Processo ainda precisa ser implementado
-        pass
-
         files = self.load_tiff_files()
-        print(len(files))
+        print(files)
+
+        if len(files) == 0:
+            print("No tiff files found")
+            return False
 
         for file in files:
-            print(file)
+            self.process_file(file)
+
+        print("Conversion finished")
+        return True
 
     # Etapa de carregamento dos arquivos TIFF
     def load_tiff_files(self):
@@ -48,11 +54,20 @@ class Converter:
         # Percorre o conteúdo da pasta (Path)
         for file in folder.iterdir():
             # Reconhece a extensão do arquivo e a padroniza
-            if file.suffix.lower() in (".TIFF", "*.tiff"):
+            if file.suffix.lower() in (".tif", ".tiff"):
                 # Adiciona um elemento ao final da lista
                 tiff_files.append(file)
 
+        return tiff_files
 
-            return tiff_files
+    def process_file(self, file):
+        image = self.image_processor.open_image(file)
+        image = self.image_processor.add_border(image)
+        output_file = Path(self.output_folder) / file.name
+        self.image_processor.save_image(image, output_file)
 
+        print(file.name)
+        print(image.size)
 
+        processor = ImageProcessor()
+        image = processor.open_image(file)

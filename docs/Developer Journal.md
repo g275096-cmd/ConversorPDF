@@ -64,3 +64,58 @@ Os conceitos estudados foram:
 ### Próxima etapa
 
 Iniciar o desenvolvimento da interface gráfica do ConversorPDF utilizando PySide6.
+
+## Data
+27/07/2026
+
+### Objetivos alcançados
+Iniciar o desenvolvimento do backend do ConversorPDF e compreender como organizar o fluxo e lógica
+principal da aplicação utilizando orientação a objetos.
+
+### Conceito aprendidos
+Compreendi que uma classe representa uma entidade responsável por executar determinada tarefa.
+O construtor (__init__) recebe as informações necessárias para inicializar o objeto e armazena
+essas informações em atributos utilizando self.
+Quando o construtor encerra a execução, os parâmetros recebidos deixam de existir, ficando somente
+os atributos disponíveis ao longo de toda a vida do objeto.
+
+Assim, parâmetro é uma informação temporária, enquanto que o atributo é uma informação armazenada
+no objeto.
+
+### Estado e Comportamento
+Um objeto é composto por Estado, que são os atributos, e Comportamento, que são os métodos. Estado seria as 
+informações ou dados que recebe, por exemplo, do usuário. Com tais dados, os métodos podem utilizá-los para
+processar as informações
+
+### Organização do backend
+A classe Converter atua como coordenadora do fluxo lógico de aplicação.
+Não executa uma função específica (como OCR), mas controla a sequência das etapas do processo.
+
+Fluxo planejado:
+start() --> validate() --> load_tiff_files() --> OCR --> geração do PDF --> finalização
+
+### Biblioteca pathLib
+A classe Path ajuda a manipular diretórios e arquivos.
+Logo, ao em vez de trabalhar apenas com strings, um objeto Path oferece métodos específicos para
+manipular o sistema de arquivos. 
+Conceitos usados:
+Path(); iterdir(); suffix; lower()
+
+### Listas em Python
+append() adiciona um elemento;
+
+len() retorna a quantidade de elementos.
+
+### Responsabilidade única
+validate() apenas verifica se os dados são válidos;
+load_tiff_files() apenas localiza os arquivos TIFF;
+start() coordena o fluxo da aplicação.
+
+### Dificuldades encontradas
+por que utilizar o self em PySide6; diferença entre parâmetros e atributos; quando um método deve
+receber parâmetros e quando deve utilizar os atributos do objeto; e utilização da biblioteca pathLib.
+
+### Próxima meta
+Localizar todos os arquivos TIFF em converter.py;
+iniciar o processamento de cada arquivo;
+integrar os módulos de imagem, OCR e geração do PDF.

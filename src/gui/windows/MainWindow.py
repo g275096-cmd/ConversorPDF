@@ -7,6 +7,8 @@ from PySide6.QtWidgets import QLineEdit
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QProgressBar
 from PySide6.QtWidgets import QTextEdit
+from src.core import converter
+from src.core.converter import Converter
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -46,12 +48,18 @@ class MainWindow(QMainWindow):
         self.button_output.setFixedSize(70, 40)
         self.button_output.clicked.connect(self.select_output_file)
 
+        # Cria botão Convert
+        self.convert_button = QPushButton("Convert")
+
         output_layout.addWidget(saida_text)
         output_layout.addWidget(self.output_edit)
         output_layout.addWidget(self.button_output)
 
         action_layout = QHBoxLayout()
+        # Cria botão Convert
         self.convert_button = QPushButton("Convert")
+        self.convert_button.clicked.connect(self.convert)
+
         # Adiciona o botão criado no layout de ação
         action_layout.addWidget(self.convert_button)
 
@@ -60,7 +68,7 @@ class MainWindow(QMainWindow):
 
         self.process = QProgressBar()
         self.process.setRange(0, 100)
-        self.process.setValue(50)
+        self.process.setValue(0)
 
         self.process.setStyleSheet("""
     QProgressBar {
@@ -102,7 +110,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
     def select_input_file(self):
-        # A identação dessas duas linhas devem estar dentro da classe, mas fora da __init__
+        # A indentação dessas duas linhas devem estar dentro da classe, mas fora da __init__
         # Queremos que o usuário clique no botão para abrir o gerenciador de arquivos
         # E não abrí-lo automaticamente logo após o programa iniciar
         folder = QFileDialog.getExistingDirectory(self,"Select input folder")
@@ -118,6 +126,16 @@ class MainWindow(QMainWindow):
         print(folder_output)
         if folder_output:
             self.output_edit.setText(folder_output)
+
+    # Cria método que interage com o backend
+    def convert(self):
+        input_folder = self.input_edit.text()
+        output_folder = self.output_edit.text()
+
+        converter = Converter(input_folder, output_folder)
+
+        # Chama a função à aplicação
+        converter.start()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
