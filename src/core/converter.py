@@ -1,5 +1,7 @@
 from pathlib import Path
 from src.image.image_processor import ImageProcessor
+from src.pdf.pdf_processor import PDFProcessor
+from src.ocr.ocr_processor import OcrProcessor
 
 # arquivo py coordenador do fluxo de processo
 # Lógica: ler (e conhecer) os caminhos de entrada e saída; se ambos válidos, então inicia a conversão
@@ -7,7 +9,11 @@ from src.image.image_processor import ImageProcessor
 class Converter:
     # __ini__ construtor guarda o estado (atributos) do objeto
     # self é a referência ao próprio objeto
-    def __init__(self, input_folder, output_folder):
+    def __init__(self,
+                 input_folder,
+                 output_folder,
+                 log_callback,
+                 process_callback):
         # entrada e saida são parâmetros que o init precisa
         # Elas só existem enquanto o init está em execução
         # Porém, os atributos delas continuam existindo
@@ -16,7 +22,12 @@ class Converter:
         # Atributos são os parâmetros guardados para os métodos utilizarem
         self.input_folder = input_folder
         self.output_folder = output_folder
-        self.image_processor = ImageProcessor() # cria um atributo da classe
+        self.log = log_callback
+        self.progress = process_callback
+        self.image_processor = ImageProcessor() # cria um atributo da classe e a instância é armazenada no atributo
+        self.pdf_processor = PDFProcessor() # Cria atributo da classe PDFProcessor()
+        self.ocr_processor = OcrProcessor() # Cria atributo da classe OcrProcessor()
+        # O valor da instância pelo objeto no método da classe é atribuído ao atributo
 
     # Valida se usuário inseriu as pastas de entrada e de saída
     def validate(self):
@@ -26,21 +37,30 @@ class Converter:
             return True
 
     def start(self):
+        self.log("Starting conversion", "INFO")
+
         if not self.validate():
-            print("Input folder is invalid")
+            print("Input folder is invalid.", "ERROR")
             return False
 
         files = self.load_tiff_files()
-        print(files)
+
+        self.log(f"{len(files)} files found.", "INFO")
+
+        total = len(files)
 
         if len(files) == 0:
-            print("No tiff files found")
+            self.log("No tiff files found.", "ERROR")
             return False
 
-        for file in files:
+        for index, file in enumerate(files, start=1):
+            self.log(f"Processing {file.name}...", "INFO")
             self.process_file(file)
 
-        print("Conversion finished")
+            progress = int(index / total * 100)
+            self.progress(progress)
+
+        self.log("Conversion sucessfully completed.", "SUCCESS")
         return True
 
     # Etapa de carregamento dos arquivos TIFF
@@ -60,14 +80,28 @@ class Converter:
 
         return tiff_files
 
+# Explicação do bloco abaixo:
+# Método recebe um arquivo file. Esse arquivo é uma instância que chama uma função do método de uma classe
+# Nessa classe, o método é feito e retorna o objeto ao atributo da classe Converter
+# Por fim, é armazenada na variável image
+# Depois, essa última imagem novamente chama através de um atributo, mas instância de outra classe, uma função especialista
+# E retorna essa nova imagem processada para a mesma variável de antes
+# Mas para evitar confusão, a classe Converter importa as instância das classes especialistas
+# Agora para o OCR, a variável text recebe a instância de uma classe especialista que chama uma função daquele método
+# O método retorna um objeto (ou string, depende do tipo de dado). E a instância (objeto) é armazenado no atributo, onde a var text recebe esse valor da image
+
     def process_file(self, file):
+        self.log("Opening file...", "INFO")
         image = self.image_processor.open_image(file)
+
+        self.log("Adding border...", "INFO")
         image = self.image_processor.add_border(image)
-        output_file = Path(self.output_folder) / file.name
-        self.image_processor.save_image(image, output_file)
 
-        print(file.name)
-        print(image.size)
+        self.log("Extracting text...", "INFO")
+        text = self.ocr_processor.extract_text(image) # Linha de comando que será atualizada pela self.pdf_processor...
 
-        processor = ImageProcessor()
-        image = processor.open_image(file)
+        self.log("Generating PDF...", "INFO")
+        output_pdf = Path(self.output_folder) / (file.stem + ".pdf")
+        self.pdf_processor.create_pdf(image, output_pdf)
+
+        self.log(f"{file.name} -> {output_pdf.name}")

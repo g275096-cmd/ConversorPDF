@@ -7,8 +7,11 @@ from PySide6.QtWidgets import QLineEdit
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QProgressBar
 from PySide6.QtWidgets import QTextEdit
+from rich import progress
+
 from src.core import converter
 from src.core.converter import Converter
+from datetime import datetime
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -129,13 +132,28 @@ class MainWindow(QMainWindow):
 
     # Cria método que interage com o backend
     def convert(self):
+        self.log.clear()
         input_folder = self.input_edit.text()
         output_folder = self.output_edit.text()
 
-        converter = Converter(input_folder, output_folder)
+        converter = Converter(input_folder,
+                              output_folder,
+                              self.add_log,
+                              self.update_progress
+                              )
 
         # Chama a função à aplicação
         converter.start()
+
+    # Método Log
+    # Ele recebe o texto e imprime na tela
+    def add_log(self, message, level="INFO"):
+        current_time = datetime.now().strftime("%H:%M:%S")
+        self.log.append(f"[{current_time}] [{level}] {message}")
+
+    # Método exclusiva para a barra de progresso
+    def update_progress(self, value):
+        self.process.setValue(value)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

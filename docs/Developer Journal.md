@@ -119,3 +119,28 @@ receber parâmetros e quando deve utilizar os atributos do objeto; e utilizaçã
 Localizar todos os arquivos TIFF em converter.py;
 iniciar o processamento de cada arquivo;
 integrar os módulos de imagem, OCR e geração do PDF.
+
+## Data 
+29/07/2026
+
+### Objetivo
+Iniciar o processamento real dos arquivos TIFF.
+
+### Implementado
+- Criação da classe 'ImageProcessor'.
+- Método 'open_image()' utilizando Pillow.
+- Método 'add_border()' utilizando 'ImageOps.expand'.
+- Método 'save_image()' para salvar a imagem processada.
+- Integração entre 'Converter' e 'ImageProcessor'.
+- Organização do processamento em 'process_file()'.
+
+### Aprendizados
+- A classe 'Converter' coordena o fluxo, mas não processa imagens diretamente.
+- A classe 'ImageProcessor' possui responsabilidade única: manipular imagens.
+- O 'Converter' mantém uma instância de 'ImageProcessor' como atributo.
+- Um método pode retorna um objeto ('image') que será utilizado por outro método.
+- A biblioteca Pillow trabalha com objetos 'Image', permitindo modificar a imagem antes de salvá-la.
+
+# Próxima meta
+Implementar a geração do PDF/A-2B a partir da imagem processada.
+
