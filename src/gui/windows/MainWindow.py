@@ -1,4 +1,6 @@
 import sys
+from weakref import finalize
+
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout
 from PySide6.QtWidgets import QLabel
@@ -8,10 +10,12 @@ from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QProgressBar
 from PySide6.QtWidgets import QTextEdit
 from rich import progress
-
 from src.core import converter
 from src.core.converter import Converter
 from datetime import datetime
+from src.core.worker import Worker
+from PySide6.QtCore import QThread
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -141,9 +145,39 @@ class MainWindow(QMainWindow):
                               self.add_log,
                               self.update_progress
                               )
+        # Objeto recebe a classe com todos os métodos de outra classe
+        self.worker = Worker(converter)
 
-        # Chama a função à aplicação
-        converter.start()
+        self.thread = QThread()
+        # Primeiro liga o objeto worker à função
+        self.worker.moveToThread(self.thread)
+
+        # Quando thread tiver começado ele conecta e executa ao método run()
+        # E conectar os demais sinais
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.thread.quit)
+        self.thread.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.thread.finished.connect(self.conversion_finished)
+
+        # Chama a função à aplicação somente após as conexões
+        self.thread.start()
+
+    # Método responsável por finalizar a conversão na interface (executa quando a Thread termina)
+    # Restaura o estado da GUI para permitir uma nova conversão (liberando as referências da conversão no final)
+    def conversion_finished(self):
+        self.convert_button.setEnabled(True)
+        self.thread.start()
+
+        # Renova as referências dos objetos da classe
+        self.worker = None
+        self.thread = None
+
+        # Imprime última mensagem após o processo
+        self.add_log(
+            "Application ready for a new conversion.",
+            "SUCCESS"
+        )
 
     # Método Log
     # Ele recebe o texto e imprime na tela
@@ -152,7 +186,11 @@ class MainWindow(QMainWindow):
         self.log.append(f"[{current_time}] [{level}] {message}")
 
     # Método exclusiva para a barra de progresso
-    def update_progress(self, value):
+    def update_progress(
+            self,
+            value,
+            message
+    ):
         self.process.setValue(value)
 
 if __name__ == "__main__":

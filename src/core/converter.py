@@ -14,7 +14,7 @@ class Converter:
                  output_folder,
                  log_callback,
                  process_callback):
-        # entrada e saida são parâmetros que o init precisa
+        # entrada e saída são parâmetros que o init precisa
         # Elas só existem enquanto o init está em execução
         # Porém, os atributos delas continuam existindo
         # self.entrada é o atributo do objeto (lado esquerdo); input_folder é o parâmetro recebido (lado direito)
@@ -98,10 +98,19 @@ class Converter:
         image = self.image_processor.add_border(image)
 
         self.log("Extracting text...", "INFO")
-        text = self.ocr_processor.extract_text(image) # Linha de comando que será atualizada pela self.pdf_processor...
 
         self.log("Generating PDF...", "INFO")
-        output_pdf = Path(self.output_folder) / (file.stem + ".pdf")
-        self.pdf_processor.create_pdf(image, output_pdf)
 
-        self.log(f"{file.name} -> {output_pdf.name}")
+        temp_pdf = Path(self.output_folder) / (file.stem + "_temp.pdf")
+        final_pdf = Path(self.output_folder) / (file.stem + ".pdf")
+
+        self.pdf_processor.create_pdf(
+            image,
+            temp_pdf
+        )
+
+        self.pdf_processor.convert_pdfa(
+            temp_pdf,
+            final_pdf
+        )
+        self.log(f"{file.name} -> {final_pdf.name}")

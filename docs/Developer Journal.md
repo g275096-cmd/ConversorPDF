@@ -3,7 +3,7 @@
 ## Data
 20/07/2026
 
-## Objetivos alcançados
+### Objetivos alcançados
 Hoje foi concluída a fase de organização do ambiente de desenvolvedor e da fase inicial de planejamento
 e infraestrutura do projeto.
 
@@ -141,6 +141,54 @@ Iniciar o processamento real dos arquivos TIFF.
 - Um método pode retorna um objeto ('image') que será utilizado por outro método.
 - A biblioteca Pillow trabalha com objetos 'Image', permitindo modificar a imagem antes de salvá-la.
 
-# Próxima meta
+### Próxima meta
 Implementar a geração do PDF/A-2B a partir da imagem processada.
 
+## Data 
+30/07/2026
+
+### Objetivo
+Integrar o backend com a interface gráfica e torna o processo de conversão mais transparente e intuitiva para o operador
+
+### Implementações
+Backend
+- estruturada a classe Converter como coordenadora do fluxo lógico de conversão.
+- implementado o processamento sequencial dos arquivos TIFF.
+- Integração de classes:
+- ImageProcessor
+- OCRProcessor
+- PDFProcessor
+
+### Comunicação BACKEND -> GUI
+Foi implementado o uso de callbacks para desacoplar o backend da interface
+
+### Callback de log
+A GUI fornece um método responsável apenas por exibir mensagens.
+O Backend apenas informa quando deseja registrar eventos.
+
+### Callback de progresso
+Implementada comunicação semelhante para atualizar a barra de progresso.
+Fluxo:
+
+Converter -> self.progress(...) -> MainWindow.update_progress() -> QProgressBar.setValue()
+
+### Sistemas de Logs
+Implementado registro de eventos com: 
+
+- Horário automático;
+- níveis de mensagem (categorização de eventos).
+
+### Fluxo de Objetos
+O resultado obtido por uma classe se torna posteriormente entrada da próxima.
+Exemplo:
+
+ImageProcessor -> imagem -> OCRProcessor -> texto -> PDFProcessor -> PDF final
+
+A classe Converter apenas coordena esse fluxo de aplicação.
+
+### Metas 
+- Implementar geração de PDF/A-2B.
+- Executar o processamento em QThread.
+- Melhorar a barra de progresso.
+- Implementar tratamento robusto de exceções.
+- Criar configurações do usuário.
