@@ -53,12 +53,30 @@ class Converter:
             self.log("No tiff files found.", "ERROR")
             return False
 
+        # Lista que guarda os pdfs temporários
+        temp_pdfs = []
+
         for index, file in enumerate(files, start=1):
             self.log(f"Processing {file.name}...", "INFO")
-            self.process_file(file)
+
+            temp_pdf = self.process_file(file)
+            temp_pdfs.append(temp_pdf)
+
 
             progress = int(index / total * 100)
-            self.progress(progress)
+            self.progress(progress, f"Processing {file.name}")
+
+        merged_pdf = Path(self.output_folder) / "merged_temp.pdf"
+
+        self.pdf_processor.merge_pdfs(
+            temp_pdfs,
+            merged_pdf
+        )
+
+        print("PDFs temporários: ")
+
+        for pdf in temp_pdfs:
+            print(pdf)
 
         self.log("Conversion sucessfully completed.", "SUCCESS")
         return True
@@ -78,7 +96,7 @@ class Converter:
                 # Adiciona um elemento ao final da lista
                 tiff_files.append(file)
 
-        return tiff_files
+        return sorted(tiff_files, key=lambda file: file.name)
 
 # Explicação do bloco abaixo:
 # Método recebe um arquivo file. Esse arquivo é uma instância que chama uma função do método de uma classe
@@ -109,8 +127,13 @@ class Converter:
             temp_pdf
         )
 
-        self.pdf_processor.convert_pdfa(
-            temp_pdf,
-            final_pdf
-        )
         self.log(f"{file.name} -> {final_pdf.name}")
+
+        return temp_pdf
+
+    # Método responsável por nomear o PDF com a convenção do centro arquivístico
+    def build_output_path(self, file):
+        pass
+
+    def remove_temp_pdfs(self, temp_pdfs):
+        pass

@@ -163,11 +163,13 @@ class MainWindow(QMainWindow):
         # Chama a função à aplicação somente após as conexões
         self.thread.start()
 
+        print("Thread iniciada")
+
     # Método responsável por finalizar a conversão na interface (executa quando a Thread termina)
     # Restaura o estado da GUI para permitir uma nova conversão (liberando as referências da conversão no final)
     def conversion_finished(self):
+        print("Conversão finalizada")
         self.convert_button.setEnabled(True)
-        self.thread.start()
 
         # Renova as referências dos objetos da classe
         self.worker = None
