@@ -75,3 +75,15 @@ class PDFProcessor:
         print("STDERR:")
         print(result.stderr)
         result.check_returncode()
+        print(f"PDF/A-2B gerado: {output_pdf}")
+        print(f"Arquivo existe? {output_pdf.exists()}")
+
+    def remove_temp_pdfs(
+            self,
+            temp_pdfs
+    ):
+        for temp_pdf in temp_pdfs:
+            if temp_pdf.exists():
+                print(f"Removendo {temp_pdf}")
+                temp_pdf.unlink()
+            

@@ -192,3 +192,66 @@ A classe Converter apenas coordena esse fluxo de aplicação.
 - Melhorar a barra de progresso.
 - Implementar tratamento robusto de exceções.
 - Criar configurações do usuário.
+
+## Data
+17/08/2026
+
+### Metas concluídas
+- Abre arquivos TIFF;
+- Adição borda no arquivo;
+- Geração de PDF temporário;
+- Junção de múltiplos PDFs em um único;
+- Remoção dos PDFs temporários.
+
+### Metas pendentes
+- Corrigir conversão para PDF/A-2B;
+- Aplicar a nomenclatura arquivística final;
+- Tornar a barra de progresso dinâmica;
+- Aplicar funções de edição nos arquivos TIFF (alinhamento, borda branca, etc.).
+
+### Problemas identificados
+1. O arquivo merged_temp.pdf é sobrescrito a cada nova execução.
+2. O documento merged_temp.pdf ainda não é convertido para o padrão PDF/A-2B.
+3. O nome arquivístico do PDF ainda não foi implementado.
+
+## Data
+24/08/2026
+
+### Objetivo
+Continuar o desenvolvimento do pipeline de conversão e implementar a conversão do documento unificado para o padrão PDF/A-2B
+
+### Validação
+A conversão foi testada com múltiplos arquivos TIFF.
+Resultados: 
+- Todos os TIFFs foram reunidos num único documento;
+- O documento final permaneceu pesquisável e foi identificado como PDF/A-2B pelo ABBYY;
+- A camada OCR foi preservada.
+A validação confirmou que o pipeline está funcionando corretamente, conforme a especificação.
+
+### Próximas metas:
+- Implementar a nomenclatura arquivística automática do PDF final;
+- Remover os arquivos temporários somente após a conversão final bem-sucedida;
+- Adicionar mensagens dessas etapas ao log de aplicação;
+- Continuar o desenvolvimento da barra de progresso;
+- Resolver sobrescrita de arquivos intermediários quando houver múltiplas conversões na mesma pasta.
+
+## Data
+02/09/2026
+
+### Marco
+Implementação inicial do pipeline de edição geométrica das imagens.
+
+O objetivo desta implementação é automatizar parte do procedimento anteriormente realizado manualmente pelo operador
+o processo de digitalização.
+
+### Avanços no componente deskew do sistema (OpenCV)
+Foi implementado no sistema a funcionalidade deskew para alinhar documentos. O componente responsável conseguiu:
+1. Converter a imagem PIL para NumPy.
+2. Converter para tons de cinza.
+3. Aplicar threshold com Otsu.
+4. Encontrar os contornos externos.
+5. Identificar o maior contorno como o documento.
+6. Usar minAreaRect() para obter orientação do documento.
+7. Extrair o ângulo.
+8. Criar a matriz de rotação
+9. Aplicar warpAffine() na imagem original.

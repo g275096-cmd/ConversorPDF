@@ -72,6 +72,7 @@ class MainWindow(QMainWindow):
 
         # Insere a barra de progresso
         process_label = QLabel("Process: ")
+        self.current_file_label = QLabel("File: waiting")
 
         self.process = QProgressBar()
         self.process.setRange(0, 100)
@@ -105,6 +106,7 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(10, 10, 10, 10)
 
         # Adiciona ao layout principal o log e a barra de carregamento
+        main_layout.addWidget(self.current_file_label)
         main_layout.addWidget(process_label)
         main_layout.addWidget(self.process)
         main_layout.addWidget(log_label)
@@ -194,6 +196,8 @@ class MainWindow(QMainWindow):
             message
     ):
         self.process.setValue(value)
+        self.current_file_label.setText(message)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

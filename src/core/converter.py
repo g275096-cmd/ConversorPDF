@@ -67,10 +67,15 @@ class Converter:
             self.progress(progress, f"Processing {file.name}")
 
         merged_pdf = Path(self.output_folder) / "merged_temp.pdf"
+        pdfa_output = Path(self.output_folder) / "final_pdfa.pdf"
 
         self.pdf_processor.merge_pdfs(
             temp_pdfs,
-            merged_pdf
+            merged_pdf,
+        )
+        self.pdf_processor.convert_pdfa(
+            merged_pdf,
+            pdfa_output
         )
 
         print("PDFs temporários: ")
@@ -78,7 +83,10 @@ class Converter:
         for pdf in temp_pdfs:
             print(pdf)
 
+        self.pdf_processor.remove_temp_pdfs(temp_pdfs)
+
         self.log("Conversion sucessfully completed.", "SUCCESS")
+
         return True
 
     # Etapa de carregamento dos arquivos TIFF
@@ -133,7 +141,4 @@ class Converter:
 
     # Método responsável por nomear o PDF com a convenção do centro arquivístico
     def build_output_path(self, file):
-        pass
-
-    def remove_temp_pdfs(self, temp_pdfs):
         pass

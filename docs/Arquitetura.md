@@ -55,3 +55,37 @@ config: configurações do sistema.
 - Legibilidade de código;
 - Reutilização de componentes;
 - Escalabilidade do projeto.
+
+## Evolução da arquitetura
+A arquitetura inicial do sistema considerava a conversão individual de arquivos TIFF para documentos PDF/A-2B.
+
+Durante o desenvolvimento e a validação dos requisitos, foi identificado que múltiplos arquivos TIFF podem representar
+páginas de um mesmo documento arquivístico.
+
+A especificação foi então ajustada para que o sistema seja capaz de: 
+1. Processar múltiplos arquivos TIFF;
+2. Gerar PDFs temporários individuais;
+3. Preservar a ordem dos documentos;
+4. Unir os PDFs temporários;
+5. Converter o documento unificado para PDF/A-2B;
+6. Remover os arquivos intermediários após a conclusão bem-sucedida.
+
+Essa alteração introduziu uma nova etapa de agregação no pipeline, implementada pelo método 'merge_pdfs()'.
+
+## Módulo 'image'
+Responsável pelo processamento e preparação das imagens TIFF utilizadas no pipeline de conversão.
+
+### Responsabilidades
+O módulo pode realizar operações relacionadas à preparação geométrica das imagens, incluindo:
+- abertura de imagens;
+- detecção do documento principal;
+- correção de inclinação;
+- remoção do fundo do scanner;
+- recorte da área correspondente ao documento;
+- padronização das margens;
+- salvamento das imagens processadas.
+
+### Observação
+A implementação feita é ainda uma primeira versão funcional do pipeline. É necessária passar pelo processo de testes e validação.
+
+
