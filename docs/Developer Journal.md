@@ -255,3 +255,71 @@ Foi implementado no sistema a funcionalidade deskew para alinhar documentos. O c
 7. Extrair o ângulo.
 8. Criar a matriz de rotação
 9. Aplicar warpAffine() na imagem original.
+
+## Data
+28/09/2026
+
+### Marco histórico
+Correção da função deskew(), recorte e bordas
+
+### Problema identificado
+Com os primeiros testes do ConversosPDF pela interface GUI, o processamento de imagens apresentou um problema referente ao recorte da página.
+
+O problema mais evidente era que no PDFA final, algumas páginas tiveram o seu cabeçalho recortado, retirando o código arquivístico do documento. Outro problema evidente percebido foi na existência de faixas do fundo do scanner em algumas páginas do documento.
+
+Então, o objetivo passou a ser:
+- Corrigir a inclinação da página;
+- Identificar corretamente os limites do documento;
+- Preservar as extremidades da folha;
+- Não cortar cabeçalhos ou o código da página;
+- Eliminar o fundo do scanner
+- Produzir uma imagem adequada para a geração do PDF/A - 2B.
+
+A partir disso a função deskew() passou a ser depurada em cada trecho. Foram gravadas imagens intermediárias a fim de descobrir em qual estágio o conteúdo estava sendo perdido. 
+Foram criados arquivos de diagnósticos "Teste de Componentes":
+- TC01_threshold.png;
+- TC01_refined_mask.png;
+- TC01_cropped.png; etc.
+
+Em seguida, adotou-se o processamento de imagem em tons de cinza. 
+
+``
+python >> gray = cv2.cvtColor(imagem_np, cv2.COLOR_RGB2GRAY)
+``
+
+Com essa aplicação, visa abordar uma estratégia utilizada para aumentar a intensidade de contraste para delimitar a forma do que era realmente documento de borda de scanner, eliminando canais de cores, R, G e B.
+
+Na sequência, adotou-se o trecho abaixo:
+
+```
+python >>> kernel = np.ones((15,15), np.uint8)
+python >>> threshold = vc2.morphologyEx(threshold, cv2.MORPH_CLOSE, kernel)
+```
+A ideia é manter o tratamento da máscara para reforçar a região clara do documento e reduzir pequenas regiões/irregularidades antes da aplicação dos contornos.
+
+### - Correção da inclinação
+```cv2.minAreaRect()``` foi então usado para obter a orientação geométrica da folha.
+O valor do ângulo retornada, calculou-se o ângulo de correção (angle) e aplicada uma rotação com ```cv2.warAffine()```.
+
+```text
+rotated_mask = cv2.warAffine(document, mask, rotation_matrix, (...), flags=cv2.BORDER_CONSTANT, borderValue=0)
+```
+
+Este comando acima permitiu que pudesse ser analisado separadametne a imagem efetivamente rotacionada, e a região que o algoritmo considerava pertencente ao documento.
+
+Em seguida, avançou para etapas de identificação da causa do corte de bordas (pequenas faixas presentes nas extremidades das páginas do PDFA), e para a sessão com teste de recorte (TC01_cropped).
+
+Nos testes mais recente feitos pela interface gráfica, observou-se uma melhora importante nos seguintes requisitos:
+- algumas páginas que tinha seu cabeçalho recortado agora passaram a preservá-lo;
+- a região superior do documento passou a ser mantida de forma mais consistente;
+- o documento contina sendo convertido para o PDF/A - 2B e permanece pesquisável;
+- a margem branca continua sendo um requisito funcional para o resultado final.
+
+Porém, ainda existe partes pendentes. Ei-las:
+- eliminar de maneira consistente as faixas pretas do fundo do scanner presente em algumas páginas do PDF, principalmente ocorrendo em testes em lote;
+- validar o comportamento em uma bateria maior de TIFFs, considerando as diferentes dimensões e características que os documentos podem apresentar.
+
+### Estado atual: parcialmente concluída
+Atualmente, o programa entrega um comportamento funcional. Ele avançou na correção do recorte e das correções de detecção de contorna, criação e rotação de máscaras. Foram realizados diversos testes de componentes para identificar falhas de tratamento. Apesar de algumas melhoras, ainda falta refinar e tornar consistente a eliminação das faixas do fundo de scanner. 
+
+A próxima etapa visa investigar e corrigir erros relacionado ao acabamento das imagens. 

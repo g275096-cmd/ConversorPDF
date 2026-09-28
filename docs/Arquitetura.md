@@ -86,6 +86,9 @@ O módulo pode realizar operações relacionadas à preparação geométrica das
 - salvamento das imagens processadas.
 
 ### Observação
-A implementação feita é ainda uma primeira versão funcional do pipeline. É necessária passar pelo processo de testes e validação.
+A implementação feita é ainda uma primeira versão funcional do pipeline. É necessário passar pelo processo de testes e validação.
+
+A implementação do módulo foi realizada num programa isolado, para experimentar a funcionalidade. Depois será um artefato
+validado para a integração no sistema na sua totalidade.
 
 

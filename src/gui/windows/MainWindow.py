@@ -106,6 +106,7 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(10, 10, 10, 10)
 
         # Adiciona ao layout principal o log e a barra de carregamento
+
         main_layout.addWidget(self.current_file_label)
         main_layout.addWidget(process_label)
         main_layout.addWidget(self.process)

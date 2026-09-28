@@ -66,6 +66,8 @@ class Converter:
             progress = int(index / total * 100)
             self.progress(progress, f"Processing {file.name}")
 
+        self.log("Please wait a moment. Finalizing the document...", "INFO")
+
         merged_pdf = Path(self.output_folder) / "merged_temp.pdf"
         pdfa_output = Path(self.output_folder) / "final_pdfa.pdf"
 
@@ -120,8 +122,8 @@ class Converter:
         self.log("Opening file...", "INFO")
         image = self.image_processor.open_image(file)
 
-        self.log("Adding border...", "INFO")
-        image = self.image_processor.add_border(image)
+        self.log("Processing image...", "INFO")
+        image = self.image_processor.deskew(image)
 
         self.log("Extracting text...", "INFO")
 
